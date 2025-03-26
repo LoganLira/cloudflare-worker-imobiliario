@@ -1,0 +1,3 @@
+name = "meu-worker"
+compatibility_date = "2025-03-26"
+main = "worker.js"
