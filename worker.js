@@ -1,14 +1,14 @@
-export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    const subdomain = url.hostname.split(".")[0]; // Captura o subdomínio
+addEventListener("fetch", event => {
+  event.respondWith(handleRequest(event.request))
+})
 
-    // Se for um subdomínio válido, redireciona
-    if (subdomain !== "www" && subdomain !== "imobiliario") {
-      return Response.redirect(`https://www.imobiliario.io/home/${subdomain}`, 301);
-    }
+async function handleRequest(request) {
+  const url = new URL(request.url)
+  const subdomain = url.hostname.split(".")[0]  // Pega o subdomínio antes do ".imobiliario.io"
+  
+  // Redireciona para o caminho com o subdomínio
+  const newUrl = `https://imobiliario.io/home/${subdomain}`
+  
+  return Response.redirect(newUrl, 301)
+}
 
-    // Se não houver subdomínio, mantém a navegação normal
-    return new Response("Domínio principal acessado.");
-  },
-};
