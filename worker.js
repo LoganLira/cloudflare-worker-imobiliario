@@ -1,30 +1,29 @@
-addEventListener('fetch', event => {
-  const request = event.request
-  const url = new URL(request.url)
-  
-  // Verifica se o subdomínio contém "www"
-  if (url.hostname.startsWith('www.')) {
-    // Remove o "www." do hostname
-    const newUrl = url.href.replace('www.', '')
-    
-    // Redireciona para a versão sem "www"
-    return event.respondWith(Response.redirect(newUrl, 301))
-  }
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const hostnameParts = url.hostname.split(".");
 
-  // Caso o hostname não tenha "www", continua com o fluxo normal
-  // Aqui você pode adicionar a lógica para lidar com o restante da requisição
-  event.respondWith(handleRequest(request))
-})
+    // Remove "www." se estiver presente
+    if (hostnameParts[0] === "www") {
+      hostnameParts.shift();
+    }
 
-// Função de manipulação da requisição (mantenha o seu código original de tratamento aqui)
-async function handleRequest(request) {
-  // A lógica de tratamento para a sua aplicação
-  const url = new URL(request.url)
-  const subdomain = url.hostname.split('.')[0] // Extrai o subdomínio (ex: quimoveis)
-  
-  // Aqui você pode continuar com o seu processamento normal para o subdomínio
-  // Exemplo de resposta:
-  return new Response(`Subdomínio: ${subdomain}`, {
-    headers: { 'content-type': 'text/plain' },
-  })
-}
+    const subdomain = hostnameParts[0]; // Captura o subdomínio (ex: "user1")
+
+    if (subdomain !== "imobiliario") {
+      const newUrl = `https://imobiliario.io/home/${subdomain}`; // Redireciona internamente
+      const response = await fetch(newUrl, {
+        method: request.method,
+        headers: request.headers,
+      });
+
+      return new Response(response.body, {
+        status: response.status,
+        headers: response.headers,
+      });
+    }
+
+    return new Response("Subdomínio inválido", { status: 404 });
+  },
+};
+
