@@ -1,29 +1,13 @@
-export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    const hostnameParts = url.hostname.split(".");
+addEventListener("fetch", event => {
+  event.respondWith(handleRequest(event.request))
+})
 
-    // Remove "www." se estiver presente
-    if (hostnameParts[0] === "www") {
-      hostnameParts.shift();
-    }
-
-    const subdomain = hostnameParts[0]; // Captura o subdomínio (ex: "user1")
-
-    if (subdomain !== "imobiliario") {
-      const newUrl = `https://imobiliario.io/home/${subdomain}`; // Redireciona internamente
-      const response = await fetch(newUrl, {
-        method: request.method,
-        headers: request.headers,
-      });
-
-      return new Response(response.body, {
-        status: response.status,
-        headers: response.headers,
-      });
-    }
-
-    return new Response("Subdomínio inválido", { status: 404 });
-  },
-};
-
+async function handleRequest(request) {
+  const url = new URL(request.url)
+  const subdomain = url.hostname.split(".")[0]  // Pega o subdomínio antes do ".imobiliario.io"
+  
+  // Redireciona para o caminho com o subdomínio
+  const newUrl = `https://imobiliario.io/home/${subdomain}`
+  
+  return Response.redirect(newUrl, 301)
+}
